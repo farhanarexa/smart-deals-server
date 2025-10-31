@@ -29,6 +29,8 @@ async function run() {
 
         const db = client.db("smartDB");
         const productsCollection = db.collection("products");
+        // for bids collection
+        const bidsCollection = db.collection("bids");
 
         //to get data
         app.get("/products", async (req, res) => {
@@ -44,7 +46,7 @@ async function run() {
             const result = await productsCollection.findOne(query);
             res.send(result);
         });
-        
+
 
         //to post data
         app.post("/products", async (req, res) => {
@@ -69,12 +71,29 @@ async function run() {
             res.send(result);
         });
 
-        
+
         //to delete data
         app.delete("/products/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await productsCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        //bids related API
+        app.get("/bids", async (req, res) => {
+            const email = req.query.email;
+            const query = {};
+            if (email) {
+                query.buyer_email = email;
+            }
+            const result = await bidsCollection.find(query).toArray();
+            res.send(result);
+        });
+
+        app.post("/bids", async (req, res) => {
+            const newBid = req.body;
+            const result = await bidsCollection.insertOne(newBid);
             res.send(result);
         });
 
