@@ -61,9 +61,18 @@ async function run() {
         //to get single data
         app.get("/products/:id", async (req, res) => {
             const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const result = await productsCollection.findOne(query);
-            res.send(result);
+            try {
+                const result = await productsCollection.findOne({ _id: id });
+
+                if (!result) {
+                    return res.status(404).json({ error: "Product not found" });
+                }
+
+                res.json(result);
+            } catch (error) {
+                console.error("Error:", error);
+                res.status(500).json({ error: "Server error" });
+            }
         });
 
 
