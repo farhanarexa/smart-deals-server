@@ -31,13 +31,32 @@ async function run() {
         const productsCollection = db.collection("products");
         // for bids collection
         const bidsCollection = db.collection("bids");
+        //for user collection
+        const usersCollection = db.collection("users");
 
-        //to get data
+        // Users API
+        app.post("/users", async (req, res) => {
+            const user = req.body;
+            const email = req.body.email;
+            const query = { email: user.email };
+            const existingUser = await usersCollection.findOne(query);
+            if (existingUser) {
+                return res.send({ message: "user already exists" });
+            }
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        });
+
+        //to get data (Product API)
         app.get("/products", async (req, res) => {
             const result = await productsCollection.find().toArray();
             res.send(result);
         });
 
+        app.get("/latestProducts", async (req, res) => {
+            const result = await productsCollection.find().sort({ created_at: -1 }).limit(6).toArray();
+            res.send(result);
+        });
 
         //to get single data
         app.get("/products/:id", async (req, res) => {
