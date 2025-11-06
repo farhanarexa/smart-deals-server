@@ -47,6 +47,29 @@ async function run() {
             res.send(result);
         });
 
+
+        app.get("/users", async (req, res) => {
+            try {
+                const users = await usersCollection.find().toArray();
+                res.send(users);
+            } catch (error) {
+                res.status(500).send({ error: "Failed to fetch users" });
+            }
+        });
+
+        app.get("/users", async (req, res) => {
+            const email = req.query.email;
+            if (!email) {
+                return res.status(400).send({ error: "Email query parameter is required" });
+            }
+            const user = await usersCollection.findOne({ email });
+            if (!user) {
+                return res.status(404).send({ error: "User not found" });
+            }
+            res.send(user);
+        });
+
+
         //to get data (Product API)
         app.get("/products", async (req, res) => {
             const result = await productsCollection.find().toArray();
@@ -119,6 +142,15 @@ async function run() {
             res.send(result);
         });
 
+        //get bids for a product
+        app.get("/products/bids/:productId", async (req, res) => {
+            const productId = req.params.productId;
+            const query = { product: productId };
+            const result = await bidsCollection.find(query).sort({ bid_price: -1 }).toArray();
+            res.send(result);
+        });
+
+        //post bids
         app.post("/bids", async (req, res) => {
             const newBid = req.body;
             const result = await bidsCollection.insertOne(newBid);
