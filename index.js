@@ -150,10 +150,28 @@ async function run() {
             res.send(result);
         });
 
+        //get a specific bid
+        app.get("/bids", async (req, res) => {
+            const query = {}
+            if (email) {
+                query.buyer_email = email;
+            }
+            const result = await bidsCollection.find(query).toArray();
+            res.send(result);
+        });
+
         //post bids
         app.post("/bids", async (req, res) => {
             const newBid = req.body;
             const result = await bidsCollection.insertOne(newBid);
+            res.send(result);
+        });
+
+        //delete bids
+        app.delete("/bids/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await bidsCollection.deleteOne(query);
             res.send(result);
         });
 
